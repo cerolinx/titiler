@@ -1,10 +1,70 @@
 # Release Notes
 
-### Unreleased
+## Unreleased
+
+* Improve XSS security for HTML templates (author @jcary741, https://github.com/developmentseed/titiler/pull/953)
+
+* Encode URL for cog_viewer and stac_viewer (author @guillemc23, https://github.com/developmentseed/titiler/pull/961)
+
+* Remove all default values to the dependencies
+    * `DatasetParams.unscale`: `False` -> `None` (default to `False` in rio-tiler)
+    * `DatasetParams.resampling_method`: `nearest` -> `None` (default to `nearest` in rio-tiler)
+    * `DatasetParams.reproject_method`: `nearest` -> `None` (default to `nearest` in rio-tiler)
+    * `ImageRenderingParams.add_mask`: `True` -> `None` (default to `True` in rio-tiler)
+    * `StatisticsParams.categorical`: `False` -> `None` (default to `False` in rio-tiler)
+
+* Add `as_dict(exclude_none=True/False)` method to the `DefaultDependency` class.
+
+    ```python
+    from typing import Optional
+    from titiler.core.dependencies import DefaultDependency
+    from dataclasses import dataclass
+
+    @dataclass
+    class Deps(DefaultDependency):
+        value: Optional[int] = None
+
+    print({**Deps().__dict__.items()})
+    >> {'value': None}
+
+    Deps().as_dict()  # `exclude_none` defaults to True
+    >> {}
+
+    Deps(value=1).as_dict()
+    >> {'value': 1}
+    ```
+
+* Use `.as_dict()` method when passing option to rio-tiler Reader's methods to avoid parameter conflicts when using custom Readers.
+
+## 0.18.6 (2024-08-27)
+
+* Switch back to `fastapi` instead of `fastapi-slim` and use `>=0.109.0` version
+
+## 0.18.5 (2024-07-03)
+
+* Set version requirement for FastAPI to `>=0.111.0`
+
+## 0.18.4 (2024-06-26)
+
+* fix Tiles URL encoding for WMTSCapabilities XML document
+
+## 0.18.3 (2024-05-20)
+
+* fix `WMTSCapabilities.xml` response for ArcMap compatibility
+    * replace `Cloud Optimized GeoTIFF` with dataset URL or `TiTiler` for the *ows:ServiceIdentification* **title**
+    * replace `cogeo` with `Dataset` for the `layer` *ows:Identifier*
+
+## 0.18.2 (2024-05-07)
+
+* move to `fastapi-slim` to avoid unwanted dependencies (author @n8sty, https://github.com/developmentseed/titiler/pull/815)
+
+## 0.18.1 (2024-04-12)
 
 ### titiler.core
 
 * fix `TerrainRGB` algorithm name (author @JinIgarashi, https://github.com/developmentseed/titiler/pull/804)
+* add more tests for `RescalingParams` and `HistogramParams` dependencies
+* make sure to return *empty* content for `204` Error code
 
 ## 0.18.0 (2024-03-22)
 
