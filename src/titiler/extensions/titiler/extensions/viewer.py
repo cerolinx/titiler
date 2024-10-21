@@ -65,3 +65,30 @@ class stacViewerExtension(FactoryExtension):
                 },
                 media_type="text/html",
             )
+
+
+@dataclass
+class multiCogViewerExtension(FactoryExtension):
+    """Add /viewer endpoint to the TilerFactory."""
+
+    templates: Jinja2Templates = DEFAULT_TEMPLATES
+
+    def register(self, factory: BaseTilerFactory):
+        """Register endpoint to the tiler factory."""
+
+        @factory.router.get("/viewer", response_class=HTMLResponse)
+        def stac_viewer(request: Request):
+            """STAC Viewer."""
+            return self.templates.TemplateResponse(
+                request,
+                name="multi_cog_viewer.html",
+                context={
+                    "tilejson_endpoint": factory.url_for(
+                        request, "tilejson", tileMatrixSetId="WebMercatorQuad"
+                    ),
+                    "info_endpoint": factory.url_for(request, "info"),
+                    "statistics_endpoint": factory.url_for(request, "statistics"),
+                },
+                media_type="text/html",
+            )
+

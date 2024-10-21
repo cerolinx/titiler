@@ -35,8 +35,12 @@ from titiler.extensions import (
     stacExtension,
     stacViewerExtension,
 )
+from titiler.extensions.viewer import multiCogViewerExtension
 from titiler.mosaic.errors import MOSAIC_STATUS_CODES
 from titiler.mosaic.factory import MosaicTilerFactory
+
+from titiler.mosaic.multi import MultiFilesBandsReader, DatasetPathParams
+from titiler.core.factory import MultiBandTilerFactory
 
 logging.getLogger("botocore.credentials").disabled = True
 logging.getLogger("botocore.utils").disabled = True
@@ -93,6 +97,29 @@ app = FastAPI(
     root_path=api_settings.root_path,
     dependencies=[Depends(validate_access_token)],
 )
+
+
+###############################################################################
+# Simple Dataset endpoints (e.g Cloud Optimized GeoTIFF)
+if True:
+    multi_cog = MultiBandTilerFactory(
+        router_prefix="/multi_cog",
+        extensions=[
+            #stacViewerExtension(),
+            cogValidateExtension(),
+            multiCogViewerExtension(),
+            stacExtension(),
+        ],
+        reader=MultiFilesBandsReader,
+        #path_dependency=DatasetPathParams,
+    )
+
+    app.include_router(
+        multi_cog.router,
+        prefix="/multi_cog",
+        tags=["Multi Cloud Optimized GeoTIFF"],
+    )
+
 
 ###############################################################################
 # Simple Dataset endpoints (e.g Cloud Optimized GeoTIFF)

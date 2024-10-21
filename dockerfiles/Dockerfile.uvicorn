@@ -3,7 +3,7 @@ ARG PYTHON_VERSION=3.11
 
 FROM bitnami/python:${PYTHON_VERSION}
 RUN apt update && apt upgrade -y \
-  && apt install curl -y \
+  && apt install curl git -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Ensure root certificates are always updated at evey container build
@@ -13,6 +13,12 @@ RUN cd /usr/local/share/ca-certificates/cacert.org && curl -k -O https://www.cac
 RUN cd /usr/local/share/ca-certificates/cacert.org && curl -k -O https://www.cacert.org/certs/class3.crt
 RUN update-ca-certificates
 ENV CURL_CA_BUNDLE /etc/ssl/certs/ca-certificates.crt
+
+#RUN git clone https://github.com/cogeotiff/rio-tiler.git
+#RUN cd rio-tiler && pip install -e .
+
+#RUN git clone https://github.com/cerolinx/cogeo-mosaic.git
+#RUN cd cogeo-mosaic && pip install -e .
 
 COPY src/titiler/ /tmp/titiler/
 RUN python -m pip install -U pip
